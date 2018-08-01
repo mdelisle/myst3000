@@ -1,8 +1,8 @@
 <div class="container">
   <mat-card>
-    <p>
+    <!-- <p>
       <img class="logo" src="assets/ngx-rocket-logo.png" alt="angular logo"/>
-    </p>
+    </p> -->
     <mat-card-content>
       <!-- <mat-card-title translate>Hello world !</mat-card-title>
       <mat-card-subtitle>
@@ -10,7 +10,21 @@
         <q [hidden]="isLoading">{{quote}}</q>
       </mat-card-subtitle> -->
 
+      <!-- <h1>Myst 3000</h1> -->
+
       <youtube-player [videoId]="id" (ready)="savePlayer($event)" (change)="onStateChange($event)"></youtube-player>
+
+      <div style="border-radius: 5px; margin-top: 10px; height:300px; overflow:auto; border: 2px solid gray;">
+        <div style="text-align:left; margin-left:3px;" *ngFor="let message of messages | async">
+              [{{ message.timestamp }}] {{ message.user}}: {{ message.text }}
+        </div>
+    </div>
+    <form onsubmit="return false;">
+      <div>
+        <input autofocus tabindex="1" type="text" #inputMessage placeholder="Your message.." />
+        <button type="submit" (click)="newMessage(inputMessage.value)">Send</button>
+      </div>
+    </form>
     </mat-card-content>
   </mat-card>
 </div>

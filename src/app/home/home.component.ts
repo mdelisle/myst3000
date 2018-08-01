@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 
 import { QuoteService } from './quote.service';
+import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
+import { Observable } from 'rxjs/internal/Observable';
+import { DatePipe } from '@angular/common';
+
+export interface Message {
+  user: string;
+  text: string;
+  timestamp: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -13,15 +22,20 @@ export class HomeComponent implements OnInit {
   quote: string;
   isLoading: boolean;
   player: YT.Player;
-  private id = 'qDuKsiwS5xw';
+  public id = 'qDuKsiwS5xw';
+  messagesCollection: AngularFirestoreCollection<Message>;
+  messages: Observable<Message[]>;
+  datePipe = new DatePipe('en-US');
 
-  constructor(private quoteService: QuoteService) { }
+  constructor(private quoteService: QuoteService, private afs: AngularFirestore) { }
 
   ngOnInit() {
-    this.isLoading = true;
-    this.quoteService.getRandomQuote({ category: 'dev' })
-      .pipe(finalize(() => { this.isLoading = false; }))
-      .subscribe((quote: string) => { this.quote = quote; });
+    this.getChatData();
+  }
+
+  getChatData() {
+    this.messagesCollection = this.afs.collection<Message>('chat_messages');
+      this.messages = this.messagesCollection.valueChanges();
   }
 
   savePlayer(player: YT.Player) {
@@ -30,6 +44,12 @@ export class HomeComponent implements OnInit {
   }
   onStateChange(event: any) {
     console.log('player state', event.data);
+  }
+
+  newMessage(message: string) {
+    const date = this.datePipe.transform(new Date(), 'h:m');
+    const data = { text: message, user: 'Diesel', timestamp: date };
+    this.messagesCollection.add(data);
   }
 
 }
